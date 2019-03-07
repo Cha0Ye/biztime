@@ -89,11 +89,18 @@ router.delete("/companies/:code", async function(req, res, next) {
     let code = req.params.code;
     try {
         const result = await db.query(
-            "DELETE FROM companies WHERE code = $1",
-            [code]
-        );
-        return res.json({message: "Deleted"});
+            `SELECT code, name, description FROM companies WHERE code=$1`, [code]);
+            // console.log(result.rows[0]);
+            if (result.rows[0]) {
+                const result = await db.query(
+                "DELETE FROM companies WHERE code = $1",
+                [code]
+                );
+                return res.json({message: "Deleted"});
+            }
+            throw new ExpressError("Company code does not exist", 404);
     }
+
     catch (err) {
         return next(err);
     }
