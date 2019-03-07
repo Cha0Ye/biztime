@@ -89,7 +89,7 @@ router.delete("/companies/:code", async function(req, res, next) {
     let code = req.params.code;
     try {
         const result = await db.query(
-            `SELECT code, name, description FROM companies WHERE code=$1`, [code]);
+            `SELECT code FROM companies WHERE code=$1`, [code]);
             // console.log(result.rows[0]);
             if (result.rows[0]) {
                 const result = await db.query(
