@@ -25,7 +25,7 @@ router.get("/companies/:code", async function(req, res, next) {
         let code = req.params.code;
         const result = await db.query(
             `SELECT code, name, description FROM companies WHERE code=$1`, [code]);
-            console.log(result.rows[0]);
+            // console.log(result.rows[0]);
             if (result.rows[0]) {
                 return res.json({companies: result.rows[0]});
             }
@@ -35,6 +35,23 @@ router.get("/companies/:code", async function(req, res, next) {
         return next(err);
     }
 });
+
+router.post("/companies", async function(req, res, next) {
+    try{
+        const {code, name, description} = req.body;
+        const result = await db.query(
+            `INSERT INTO companies (code, name, description) 
+                VALUES ($1, $2, $3)
+                RETURNING code, name, description`, 
+            [code, name, description]
+        );
+            return res.status(201).json(result.rows[0]);
+    }
+    catch(err){
+        return next(err);
+    }
+});
+
 
 
 // /companies** DELETE /users/[id]: delete user, return status */
