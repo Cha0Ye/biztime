@@ -20,18 +20,29 @@ router.get("/companies", async function(req, res, next) {
     }
 });
 
-/** GET /companies/:code get a single company */
+/** GET /companies/:code get a single company 
+ * {company: {code, name, description, invoices: [id, ...]}}
+*/
 
 router.get("/companies/:code", async function(req, res, next) {
     try{
         let code = req.params.code;
-        const result = await db.query(
+        const companyResult = await db.query(
             `SELECT code, name, description FROM companies WHERE code=$1`, [code]);
             // console.log(result.rows[0]);
-            if (result.rows[0]) {
-                return res.json({companies: result.rows[0]});
+            if (companyResult.rows.length===0) {
+                throw new ExpressError("Company code does not exist", 404);
             }
-        throw new ExpressError("Company code does not exist", 404);
+            const invoicesResult = await db.query(
+                `SELECT id FROM invoices WHERE comp_code=$1`, [code]);
+                // console.log(result.rows[0]);
+            // let { id} = invoicesResult.rows;
+            let ids = invoicesResult.rows.map(r => r.id);
+            return res.json({company: { code, 
+                                        name: companyResult.rows[0].name, 
+                                        description: companyResult.rows[0].description, 
+                                        invoices: ids}
+                            });
         }
     catch(err){
         return next(err);
