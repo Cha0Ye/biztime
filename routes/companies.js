@@ -35,14 +35,11 @@ router.get("/companies/:code", async function(req, res, next) {
             }
             const invoicesResult = await db.query(
                 `SELECT id FROM invoices WHERE comp_code=$1`, [code]);
-                // console.log(result.rows[0]);
-            // let { id} = invoicesResult.rows;
             let ids = invoicesResult.rows.map(r => r.id);
             return res.json({company: { code, 
                                         name: companyResult.rows[0].name, 
                                         description: companyResult.rows[0].description, 
-                                        invoices: ids}
-                            });
+                                        invoices: ids}});
         }
     catch(err){
         return next(err);
